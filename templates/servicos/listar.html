@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>Serviços</h3>
+        <a href="/servicos/criar" class="btn btn-success">Novo Serviço</a>
+    </div>
+    <div class="card-body">
+        {% if servicos %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Tipo</th>
+                        <th>Destinatário</th>
+                        <th>Endereço</th>
+                        <th>Agente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for servico in servicos %}
+                    <tr>
+                        <td>{{ servico.id }}</td>
+                        <td>{{ servico.titulo }}</td>
+                        <td>{{ servico.tipo|capitalize }}</td>
+                        <td>{{ servico.destinatario.nome if servico.destinatario else '-' }}</td>
+                        <td>{{ servico.endereco|truncate(30) if servico.endereco else '-' }}</td>
+                        <td>{{ servico.agente.nome if servico.agente else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            Nenhum serviço encontrado. <a href="/servicos/criar">Clique aqui</a> para criar um novo serviço.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

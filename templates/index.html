@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Integração com API da Vuupt</h1>
+    <p class="lead">Aplicação simples para criação de serviços e rotas utilizando a API da Vuupt.com</p>
+    <hr class="my-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Serviços</h5>
+                </div>
+                <div class="card-body">
+                    <p>Gerencie serviços de coleta e entrega, com geocodificação automática de endereços.</p>
+                    <a href="/servicos" class="btn btn-primary">Ver Serviços</a>
+                    <a href="/servicos/criar" class="btn btn-success">Criar Serviço</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Rotas</h5>
+                </div>
+                <div class="card-body">
+                    <p>Gerencie rotas para seus serviços, com opções de início e fim personalizáveis.</p>
+                    <a href="/rotas" class="btn btn-primary">Ver Rotas</a>
+                    <a href="/rotas/criar" class="btn btn-success">Criar Rota</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

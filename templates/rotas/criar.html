@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Criar Nova Rota</h3>
+    </div>
+    <div class="card-body">
+        <form action="/rotas/criar" method="POST">
+            <!-- Informações Obrigatórias -->
+            <div class="form-group">
+                <label for="servico_id"><b>Selecionar um serviço:</b></label>
+                <div class="input-group">
+                    <select class="form-control" id="servico_id" name="servico_id" required>
+                        <option value="">Selecionar serviço...</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-buscar-servicos">
+                        Buscar Serviços
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="previsao_inicio"><b>Previsão de início:</b></label>
+                <input type="datetime-local" class="form-control" id="previsao_inicio" name="previsao_inicio" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="base_inicio_id"><b>Local de início:</b></label>
+                <div class="input-group">
+                    <select class="form-control" id="base_inicio_id" name="base_inicio_id" required>
+                        <option value="">Selecionar base operacional...</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-buscar-bases">
+                        Buscar Bases
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="tipo_fim"><b>Local de fim:</b></label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="tipo_fim" id="fim-servico" value="servico" checked>
+                    <label class="form-check-label" for="fim-servico">
+                        Serviço selecionado
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="tipo_fim" id="fim-base" value="base">
+                    <label class="form-check-label" for="fim-base">
+                        Base operacional
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group" id="base-fim-container" style="display: none;">
+                <label for="base_fim_id">Base operacional de fim:</label>
+                <select class="form-control" id="base_fim_id" name="base_fim_id">
+                    <option value="">Selecionar base operacional...</option>
+                </select>
+            </div>
+            
+            <!-- Informações Opcionais -->
+            <h5 class="mt-4">Informações Opcionais</h5>
+            
+            <div class="form-group">
+                <label for="nome">Nome da rota:</label>
+                <input type="text" class="form-control" id="nome" name="nome">
+            </div>
+            
+            <div class="form-group">
+                <label for="veiculo_id">Veículo:</label>
+                <div class="input-group">
+                    <select class="form-control" id="veiculo_id" name="veiculo_id">
+                        <option value="">Selecionar veículo...</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-buscar-veiculos">
+                        Buscar Veículos
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="agente_id">Agente:</label>
+                <div class="input-group">
+                    <select class="form-control" id="agente_id" name="agente_id">
+                        <option value="">Selecionar agente...</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-buscar-agentes">
+                        Buscar Agentes
+                    </button>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary mt-3">Criar Rota</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Buscar serviços
+    document.getElementById('btn-buscar-servicos').addEventListener('click', function() {
+        fetch('/api/servicos')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('servico_id');
+                // Limpar opções atuais
+                select.innerHTML = '<option value="">Selecionar serviço...</option>';
+                
+                // Adicionar serviços
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(servico => {
+                        const option = document.createElement('option');
+                        option.value = servico.id;
+                        option.textContent = servico.titulo || `Serviço #${servico.id}`;
+                        select.appendChild(option);
+                    });
+                    
+                    // Mostrar mensagem de sucesso
+                    alert(`${data.data.length} serviços encontrados!`);
+                } else {
+                    alert('Nenhum serviço encontrado.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar serviços:', error);
+                alert('Erro ao buscar serviços. Verifique o console para mais detalhes.');
+            });
+    });
+    
+    // Buscar bases operacionais
+    function buscarBases(targetId = 'base_inicio_id') {
+        fetch('/api/bases')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById(targetId);
+                // Limpar opções atuais
+                select.innerHTML = '<option value="">Selecionar base operacional...</option>';
+                
+                // Adicionar bases
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(base => {
+                        const option = document.createElement('option');
+                        option.value = base.id;
+                        option.textContent = base.nome || `Base #${base.id}`;
+                        select.appendChild(option);
+                    });
+                    
+                    // Mostrar mensagem de sucesso
+                    alert(`${data.data.length} bases operacionais encontradas!`);
+                } else {
+                    alert('Nenhuma base operacional encontrada.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar bases operacionais:', error);
+                alert('Erro ao buscar bases operacionais. Verifique o console para mais detalhes.');
+            });
+    }
+    
+    document.getElementById('btn-buscar-bases').addEventListener('click', function() {
+        buscarBases('base_inicio_id');
+        // Também popula o selector de base de fim
+        buscarBases('base_fim_id');
+    });
+    
+    // Buscar veículos
+    document.getElementById('btn-buscar-veiculos').addEventListener('click', function() {
+        fetch('/api/veiculos')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('veiculo_id');
+                // Limpar opções atuais
+                select.innerHTML = '<option value="">Selecionar veículo...</option>';
+                
+                // Adicionar veículos
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(veiculo => {
+                        const option = document.createElement('option');
+                        option.value = veiculo.id;
+                        option.textContent = veiculo.placa || `Veículo #${veiculo.id}`;
+                        select.appendChild(option);
+                    });
+                    
+                    // Mostrar mensagem de sucesso
+                    alert(`${data.data.length} veículos encontrados!`);
+                } else {
+                    alert('Nenhum veículo encontrado.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar veículos:', error);
+                alert('Erro ao buscar veículos. Verifique o console para mais detalhes.');
+            });
+    });
+    
+    // Buscar agentes
+    document.getElementById('btn-buscar-agentes').addEventListener('click', function() {
+        fetch('/api/agentes')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('agente_id');
+                // Limpar opções atuais
+                select.innerHTML = '<option value="">Selecionar agente...</option>';
+                
+                // Adicionar agentes
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(agente => {
+                        const option = document.createElement('option');
+                        option.value = agente.id;
+                        option.textContent = agente.nome || `Agente #${agente.id}`;
+                        select.appendChild(option);
+                    });
+                    
+                    // Mostrar mensagem de sucesso
+                    alert(`${data.data.length} agentes encontrados!`);
+                } else {
+                    alert('Nenhum agente encontrado.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar agentes:', error);
+                alert('Erro ao buscar agentes. Verifique o console para mais detalhes.');
+            });
+    });
+    
+    // Alternar visibilidade do seletor de base de fim
+    document.querySelectorAll('input[name="tipo_fim"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            const baseFimContainer = document.getElementById('base-fim-container');
+            if (this.value === 'base') {
+                baseFimContainer.style.display = 'block';
+            } else {
+                baseFimContainer.style.display = 'none';
+            }
+        });
+    });
+    
+    // Inicializar data atual no campo de previsão de início
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('previsao_inicio').value = now.toISOString().slice(0, 16);
+    });
+</script>
+{% endblock %}

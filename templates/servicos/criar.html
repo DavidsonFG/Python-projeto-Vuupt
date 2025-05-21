@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Criar Novo Serviço</h3>
+    </div>
+    <div class="card-body">
+        <form action="/servicos/criar" method="POST">
+            <!-- Informações Obrigatórias -->
+            <div class="form-group">
+                <label for="titulo"><b>Título:</b></label>
+                <input type="text" class="form-control" id="titulo" name="titulo" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="tipo"><b>Tipo:</b></label>
+                <select class="form-control" id="tipo" name="tipo" required>
+                    <option value="coleta">Coleta</option>
+                    <option value="entrega">Entrega</option>
+                </select>
+            </div>
+            
+            <!-- Destinatário -->
+            <div class="form-group">
+                <label for="destinatario_id"><b>Destinatário:</b></label>
+                <div class="input-group">
+                    <select class="form-control" id="destinatario_id" name="destinatario_id">
+                        <option value="">Selecionar destinatário...</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-buscar-contatos">
+                        Buscar Contatos
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group mt-3">
+                <button type="button" class="btn btn-info" id="btn-novo-contato">
+                    Criar Novo Contato
+                </button>
+            </div>
+            
+            <!-- Endereço -->
+            <div class="form-group mt-3">
+                <label for="endereco">Endereço:</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="endereco" name="endereco">
+                    <button type="button" class="btn btn-outline-secondary" id="btn-geocode">
+                        Geocodificar
+                    </button>
+                </div>
+                <small class="form-text text-muted">
+                    Se um destinatário for selecionado, o endereço será preenchido automaticamente.
+                </small>
+            </div>
+            
+            <!-- Informações do endereço geocodificado -->
+            <div id="geocode-result" class="alert alert-info mt-2" style="display: none;">
+                Geocodificação realizada com sucesso.
+            </div>
+            
+            <!-- Informações Opcionais -->
+            <h5 class="mt-4">Informações Opcionais</h5>
+            
+            <div class="form-group">
+                <label for="agente_id">Atribuir a um agente:</label>
+                <div class="input-group">
+                    <select class="form-control" id="agente_id" name="agente_id">
+                        <option value="">Selecionar agente...</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-buscar-agentes">
+                        Buscar Agentes
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="codigo">Código:</label>
+                <input type="text" class="form-control" id="codigo" name="codigo">
+            </div>
+            
+            <div class="form-group">
+                <label for="telefone">Telefone:</label>
+                <input type="text" class="form-control" id="telefone" name="telefone">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">E-mail:</label>
+                <input type="email" class="form-control" id="email" name="email">
+            </div>
+            
+            <button type="submit" class="btn btn-primary mt-3">Criar Serviço</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para criar novo contato -->
+<div class="modal fade" id="novoContatoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Criar Novo Contato</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-novo-contato">
+                    <div class="form-group">
+                        <label for="contato-nome"><b>Nome:</b></label>
+                        <input type="text" class="form-control" id="contato-nome" name="nome" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contato-tipo"><b>Tipo:</b></label>
+                        <select class="form-control" id="contato-tipo" name="tipo" required>
+                            <option value="pessoa">Pessoa</option>
+                            <option value="empresa">Empresa</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contato-endereco"><b>Endereço:</b></label>
+                        <input type="text" class="form-control" id="contato-endereco" name="endereco" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-salvar-contato">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Buscar contatos
+    document.getElementById('btn-buscar-contatos').addEventListener('click', function() {
+        fetch('/api/contatos')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('destinatario_id');
+                // Limpar opções atuais
+                select.innerHTML = '<option value="">Selecionar destinatário...</option>';
+                
+                // Adicionar contatos
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(contato => {
+                        const option = document.createElement('option');
+                        option.value = contato.id;
+                        option.textContent = contato.nome;
+                        option.dataset.endereco = contato.endereco || '';
+                        select.appendChild(option);
+                    });
+                    
+                    // Mostrar mensagem de sucesso
+                    alert(`${data.data.length} contatos encontrados!`);
+                } else {
+                    alert('Nenhum contato encontrado.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar contatos:', error);
+                alert('Erro ao buscar contatos. Verifique o console para mais detalhes.');
+            });
+    });
+    
+    // Atualizar endereço quando um destinatário for selecionado
+    document.getElementById('destinatario_id').addEventListener('change', function() {
+        const option = this.options[this.selectedIndex];
+        if (option && option.dataset.endereco) {
+            document.getElementById('endereco').value = option.dataset.endereco;
+        }
+    });
+    
+    // Buscar agentes
+    document.getElementById('btn-buscar-agentes').addEventListener('click', function() {
+        fetch('/api/agentes')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('agente_id');
+                // Limpar opções atuais
+                select.innerHTML = '<option value="">Selecionar agente...</option>';
+                
+                // Adicionar agentes
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(agente => {
+                        const option = document.createElement('option');
+                        option.value = agente.id;
+                        option.textContent = agente.nome;
+                        select.appendChild(option);
+                    });
+                    
+                    // Mostrar mensagem de sucesso
+                    alert(`${data.data.length} agentes encontrados!`);
+                } else {
+                    alert('Nenhum agente encontrado.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao buscar agentes:', error);
+                alert('Erro ao buscar agentes. Verifique o console para mais detalhes.');
+            });
+    });
+    
+    // Geocodificar endereço
+    document.getElementById('btn-geocode').addEventListener('click', function() {
+        const endereco = document.getElementById('endereco').value;
+        if (!endereco) {
+            alert('Por favor, informe um endereço para geocodificar.');
+            return;
+        }
+        
+        // Simular geocodificação (na aplicação real, isso chamaria o endpoint adequado)
+        // Esta é apenas uma simulação visual, a geocodificação real acontece no servidor ao enviar o formulário
+        document.getElementById('geocode-result').style.display = 'block';
+        
+        // Em uma implementação completa, você pode fazer uma chamada AJAX para um endpoint que faz a geocodificação
+        // e retorna os dados para serem mostrados aqui
+    });
+    
+    // Abrir modal para criar novo contato
+    document.getElementById('btn-novo-contato').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('novoContatoModal'));
+        modal.show();
+    });
+    
+    // Salvar novo contato
+    document.getElementById('btn-salvar-contato').addEventListener('click', function() {
+        const nome = document.getElementById('contato-nome').value;
+        const tipo = document.getElementById('contato-tipo').value;
+        const endereco = document.getElementById('contato-endereco').value;
+        
+        if (!nome || !endereco) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+        
+        // Preparar dados do formulário
+        const formData = new FormData();
+        formData.append('nome', nome);
+        formData.append('tipo', tipo);
+        formData.append('endereco', endereco);
+        
+        // Enviar solicitação para criar contato
+        fetch('/contatos/criar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Fechar modal
+            bootstrap.Modal.getInstance(document.getElementById('novoContatoModal')).hide();
+            
+            // Limpar formulário
+            document.getElementById('form-novo-contato').reset();
+            
+            // Adicionar novo contato à lista de destinatários
+            if (data.data && data.data.id) {
+                const select = document.getElementById('destinatario_id');
+                const option = document.createElement('option');
+                option.value = data.data.id;
+                option.textContent = data.data.nome;
+                option.dataset.endereco = data.data.endereco || '';
+                select.appendChild(option);
+                select.value = data.data.id;
+                
+                // Atualizar campo de endereço
+                document.getElementById('endereco').value = data.data.endereco || '';
+            }
+            
+            alert('Contato criado com sucesso!');
+        })
+        .catch(error => {
+            console.error('Erro ao criar contato:', error);
+            alert('Erro ao criar contato: ' + error.message);
+        });
+    });
+</script>
+{% endblock %}

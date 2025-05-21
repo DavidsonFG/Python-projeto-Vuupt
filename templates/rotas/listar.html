@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>Rotas</h3>
+        <a href="/rotas/criar" class="btn btn-success">Nova Rota</a>
+    </div>
+    <div class="card-body">
+        {% if rotas %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Serviço</th>
+                        <th>Previsão de Início</th>
+                        <th>Base de Início</th>
+                        <th>Agente</th>
+                        <th>Veículo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rota in rotas %}
+                    <tr>
+                        <td>{{ rota.id }}</td>
+                        <td>{{ rota.nome if rota.nome else '-' }}</td>
+                        <td>{{ rota.servico.titulo if rota.servico else '-' }}</td>
+                        <td>{{ rota.previsao_inicio }}</td>
+                        <td>{{ rota.base_inicio.nome if rota.base_inicio else '-' }}</td>
+                        <td>{{ rota.agente.nome if rota.agente else '-' }}</td>
+                        <td>{{ rota.veiculo.placa if rota.veiculo else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            Nenhuma rota encontrada. <a href="/rotas/criar">Clique aqui</a> para criar uma nova rota.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
