@@ -163,9 +163,7 @@ def criar_servico():
     except Exception as e:
         flash(f"Erro ao criar serviço: {str(e)}", "danger")
         return redirect(url_for('form_servico'))
-
-# Criar novo contato
-@app.route('/contatos/criar', methods=['POST'])
+        
 def criar_contato():
     try:
         # Dados do formulário
@@ -199,70 +197,7 @@ def criar_contato():
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# ----- ROTAS -----
-
-# Listar rotas
-@app.route('/rotas')
-def listar_rotas():
-    try:
-        response = requests.get(
-            f"{VUUPT_BASE_URL}/routes",
-            headers=get_vuupt_headers()
-        )
-        response.raise_for_status()
-        rotas = response.json()['data']
-        return render_template('rotas/listar.html', rotas=rotas)
-    except Exception as e:
-        flash(f"Erro ao listar rotas: {str(e)}", "danger")
-        return redirect(url_for('index'))
-
-# Formulário para criar rota
-@app.route('/rotas/criar', methods=['GET'])
-def form_rota():
-    return render_template('rotas/criar.html')
-
-# API para buscar serviços
-@app.route('/api/servicos')
-def api_servicos():
-    try:
-        response = requests.get(
-            f"{VUUPT_BASE_URL}/services",
-            headers=get_vuupt_headers()
-        )
-        response.raise_for_status()
-        return jsonify(response.json())
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# API para buscar bases operacionais
-@app.route('/api/bases')
-def api_bases():
-    try:
-        response = requests.get(
-            f"{VUUPT_BASE_URL}/operational-bases",
-            headers=get_vuupt_headers()
-        )
-        response.raise_for_status()
-        return jsonify(response.json())
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# API para buscar veículos
-@app.route('/api/veiculos')
-def api_veiculos():
-    try:
-        response = requests.get(
-            f"{VUUPT_BASE_URL}/vehicles",
-            headers=get_vuupt_headers()
-        )
-        response.raise_for_status()
-        return jsonify(response.json())
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# Criar rota
-@app.route('/rotas/criar', methods=['POST'])
+        
 def criar_rota():
     try:
         # Dados do formulário

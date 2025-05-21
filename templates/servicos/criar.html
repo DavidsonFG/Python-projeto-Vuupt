@@ -134,74 +134,69 @@
 
 {% block scripts %}
 <script>
-    // Buscar contatos
-    document.getElementById('btn-buscar-contatos').addEventListener('click', function() {
-        fetch('/api/contatos')
-            .then(response => response.json())
-            .then(data => {
-                const select = document.getElementById('destinatario_id');
-                // Limpar opções atuais
-                select.innerHTML = '<option value="">Selecionar destinatário...</option>';
+// Buscar contatos
+document.getElementById('btn-buscar-contatos').addEventListener('click', function() {
+    fetch('/api/contatos')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('destinatario_id');
+            // Limpar opções atuais
+            select.innerHTML = '<option value="">Selecionar destinatário...</option>';
+            
+            // Adicionar contatos
+            if (data.data && data.data.length > 0) {
+                data.data.forEach(contato => {
+                    const option = document.createElement('option');
+                    option.value = contato.id;
+                    // Usar name em vez de nome para compatibilidade com a API
+                    option.textContent = contato.name || `Contato #${contato.id}`;
+                    // Usar address em vez de endereco para compatibilidade com a API
+                    option.dataset.endereco = contato.address || '';
+                    select.appendChild(option);
+                });
                 
-                // Adicionar contatos
-                if (data.data && data.data.length > 0) {
-                    data.data.forEach(contato => {
-                        const option = document.createElement('option');
-                        option.value = contato.id;
-                        option.textContent = contato.nome;
-                        option.dataset.endereco = contato.endereco || '';
-                        select.appendChild(option);
-                    });
-                    
-                    // Mostrar mensagem de sucesso
-                    alert(`${data.data.length} contatos encontrados!`);
-                } else {
-                    alert('Nenhum contato encontrado.');
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao buscar contatos:', error);
-                alert('Erro ao buscar contatos. Verifique o console para mais detalhes.');
-            });
-    });
-    
-    // Atualizar endereço quando um destinatário for selecionado
-    document.getElementById('destinatario_id').addEventListener('change', function() {
-        const option = this.options[this.selectedIndex];
-        if (option && option.dataset.endereco) {
-            document.getElementById('endereco').value = option.dataset.endereco;
-        }
-    });
-    
-    // Buscar agentes
-    document.getElementById('btn-buscar-agentes').addEventListener('click', function() {
-        fetch('/api/agentes')
-            .then(response => response.json())
-            .then(data => {
-                const select = document.getElementById('agente_id');
-                // Limpar opções atuais
-                select.innerHTML = '<option value="">Selecionar agente...</option>';
+                // Mostrar mensagem de sucesso
+                alert(`${data.data.length} contatos encontrados!`);
+            } else {
+                alert('Nenhum contato encontrado.');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao buscar contatos:', error);
+            alert('Erro ao buscar contatos. Verifique o console para mais detalhes.');
+        });
+});
+
+// Buscar agentes
+document.getElementById('btn-buscar-agentes').addEventListener('click', function() {
+    fetch('/api/agentes')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('agente_id');
+            // Limpar opções atuais
+            select.innerHTML = '<option value="">Selecionar agente...</option>';
+            
+            // Adicionar agentes
+            if (data.data && data.data.length > 0) {
+                data.data.forEach(agente => {
+                    const option = document.createElement('option');
+                    option.value = agente.id;
+                    // Usar name em vez de nome para compatibilidade com a API
+                    option.textContent = agente.name || `Agente #${agente.id}`;
+                    select.appendChild(option);
+                });
                 
-                // Adicionar agentes
-                if (data.data && data.data.length > 0) {
-                    data.data.forEach(agente => {
-                        const option = document.createElement('option');
-                        option.value = agente.id;
-                        option.textContent = agente.nome;
-                        select.appendChild(option);
-                    });
-                    
-                    // Mostrar mensagem de sucesso
-                    alert(`${data.data.length} agentes encontrados!`);
-                } else {
-                    alert('Nenhum agente encontrado.');
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao buscar agentes:', error);
-                alert('Erro ao buscar agentes. Verifique o console para mais detalhes.');
-            });
-    });
+                // Mostrar mensagem de sucesso
+                alert(`${data.data.length} agentes encontrados!`);
+            } else {
+                alert('Nenhum agente encontrado.');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao buscar agentes:', error);
+            alert('Erro ao buscar agentes. Verifique o console para mais detalhes.');
+        });
+});
     
     // Geocodificar endereço
     document.getElementById('btn-geocode').addEventListener('click', function() {

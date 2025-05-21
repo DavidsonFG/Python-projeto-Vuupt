@@ -25,12 +25,12 @@
                     {% for rota in rotas %}
                     <tr>
                         <td>{{ rota.id }}</td>
-                        <td>{{ rota.nome if rota.nome else '-' }}</td>
-                        <td>{{ rota.servico.titulo if rota.servico else '-' }}</td>
-                        <td>{{ rota.previsao_inicio }}</td>
-                        <td>{{ rota.base_inicio.nome if rota.base_inicio else '-' }}</td>
-                        <td>{{ rota.agente.nome if rota.agente else '-' }}</td>
-                        <td>{{ rota.veiculo.placa if rota.veiculo else '-' }}</td>
+                        <td>{{ rota.name if rota.name else '-' }}</td>
+                        <td>{{ rota.service.title if rota.service else '-' }}</td>
+                        <td>{{ rota.start_time_estimation }}</td>
+                        <td>{{ rota.start_base.name if rota.start_base else '-' }}</td>
+                        <td>{{ rota.agent.name if rota.agent else '-' }}</td>
+                        <td>{{ rota.vehicle.plate if rota.vehicle else '-' }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

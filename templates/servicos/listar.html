@@ -24,11 +24,11 @@
                     {% for servico in servicos %}
                     <tr>
                         <td>{{ servico.id }}</td>
-                        <td>{{ servico.titulo }}</td>
-                        <td>{{ servico.tipo|capitalize }}</td>
-                        <td>{{ servico.destinatario.nome if servico.destinatario else '-' }}</td>
-                        <td>{{ servico.endereco|truncate(30) if servico.endereco else '-' }}</td>
-                        <td>{{ servico.agente.nome if servico.agente else '-' }}</td>
+                        <td>{{ servico.title }}</td>
+                        <td>{{ servico.type|capitalize }}</td>
+                        <td>{{ servico.customer.name if servico.customer else '-' }}</td>
+                        <td>{{ servico.address|truncate(30) if servico.address else '-' }}</td>
+                        <td>{{ servico.agent.name if servico.agent else '-' }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
