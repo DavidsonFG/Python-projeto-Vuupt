@@ -3,6 +3,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+import json
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -119,31 +120,34 @@ def criar_servico():
                 flash("Erro na geocodificação do endereço", "danger")
                 return redirect(url_for('form_servico'))
         
-        # Preparar payload
+        # Preparar payload - corrigido para usar os nomes de campos esperados pela API
         payload = {
-            "title": titulo,
-            "type": tipo
+            "title": titulo,        # Nome em inglês conforme API
+            "type": tipo            # tipo (coleta/entrega) conforme API
         }
         
         # Adicionar destinatário se fornecido
         if destinatario_id:
-            payload["destinatario_id"] = destinatario_id
+            payload["customer_id"] = destinatario_id  # Corrigido para customer_id conforme API
         
         # Adicionar campos opcionais se fornecidos
         if agente_id:
-            payload["agente_id"] = agente_id
+            payload["agent_id"] = agente_id  # Corrigido para agent_id conforme API
         if codigo:
-            payload["codigo"] = codigo
+            payload["code"] = codigo  # Corrigido para code conforme API
         if telefone:
-            payload["telefone"] = telefone
+            payload["phone"] = telefone  # Corrigido para phone conforme API
         if email:
             payload["email"] = email
         
         # Adicionar dados de geocodificação se disponíveis
         if geo_data:
-            payload["endereco"] = geo_data["formatted_address"]
+            payload["address"] = geo_data["formatted_address"]  # Corrigido para address conforme API
             payload["latitude"] = geo_data["latitude"]
             payload["longitude"] = geo_data["longitude"]
+        
+        # Log do payload para debug
+        app.logger.info(f"Payload do serviço: {json.dumps(payload)}")
         
         # Enviar requisição para a API
         response = requests.post(
@@ -174,11 +178,11 @@ def criar_contato():
         if not geo_data:
             return jsonify({"error": "Erro na geocodificação do endereço"}), 400
         
-        # Preparar payload
+        # Preparar payload - corrigido para usar os nomes de campos esperados pela API
         payload = {
-            "nome": nome,
-            "tipo": tipo,
-            "endereco": geo_data["formatted_address"],
+            "name": nome,           # Corrigido para name conforme API
+            "type": tipo,           # tipo (pessoa/empresa) conforme API
+            "address": geo_data["formatted_address"],  # Corrigido para address conforme API
             "latitude": geo_data["latitude"],
             "longitude": geo_data["longitude"]
         }
@@ -276,26 +280,29 @@ def criar_rota():
         veiculo_id = request.form.get('veiculo_id')
         agente_id = request.form.get('agente_id')
         
-        # Preparar payload
+        # Preparar payload - corrigido para usar os nomes de campos esperados pela API
         payload = {
-            "servico_id": servico_id,
-            "previsao_inicio": previsao_inicio,
-            "base_inicio_id": base_inicio_id
+            "service_id": servico_id,  # Corrigido para service_id conforme API
+            "start_time_estimation": previsao_inicio,  # Corrigido para start_time_estimation conforme API
+            "start_base_id": base_inicio_id  # Corrigido para start_base_id conforme API
         }
         
         # Adicionar fim com base no tipo
         if tipo_fim == 'servico':
-            payload["servico_fim_id"] = fim_id
+            payload["end_service_id"] = fim_id  # Corrigido para end_service_id conforme API
         else:
-            payload["base_fim_id"] = fim_id
+            payload["end_base_id"] = fim_id  # Corrigido para end_base_id conforme API
         
         # Adicionar campos opcionais se fornecidos
         if nome:
-            payload["nome"] = nome
+            payload["name"] = nome  # Corrigido para name conforme API
         if veiculo_id:
-            payload["veiculo_id"] = veiculo_id
+            payload["vehicle_id"] = veiculo_id  # Corrigido para vehicle_id conforme API
         if agente_id:
-            payload["agente_id"] = agente_id
+            payload["agent_id"] = agente_id  # Corrigido para agent_id conforme API
+        
+        # Log do payload para debug
+        app.logger.info(f"Payload da rota: {json.dumps(payload)}")
         
         # Enviar requisição para a API
         response = requests.post(
