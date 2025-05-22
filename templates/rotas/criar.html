@@ -55,9 +55,14 @@
             
             <div class="form-group" id="base-fim-container" style="display: none;">
                 <label for="base_fim_id">Base operacional de fim:</label>
-                <select class="form-control" id="base_fim_id" name="base_fim_id">
-                    <option value="">Selecionar base operacional...</option>
-                </select>
+                <div class="input-group">
+                    <select class="form-control" id="base_fim_id" name="base_fim_id">
+                        <option value="">Selecionar base operacional...</option>
+                    </select>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-buscar-bases-fim">
+                        Buscar Bases
+                    </button>
+                </div>
             </div>
             
             <!-- Informações Opcionais -->
@@ -102,6 +107,10 @@
 <script>
 // Buscar serviços
 document.getElementById('btn-buscar-servicos').addEventListener('click', function() {
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Buscando...';
+    
     fetch('/api/servicos')
         .then(response => response.json())
         .then(data => {
@@ -114,12 +123,10 @@ document.getElementById('btn-buscar-servicos').addEventListener('click', functio
                 data.data.forEach(servico => {
                     const option = document.createElement('option');
                     option.value = servico.id;
-                    // Usar title em vez de titulo para compatibilidade com a API
                     option.textContent = servico.title || `Serviço #${servico.id}`;
                     select.appendChild(option);
                 });
                 
-                // Mostrar mensagem de sucesso
                 alert(`${data.data.length} serviços encontrados!`);
             } else {
                 alert('Nenhum serviço encontrado.');
@@ -127,43 +134,74 @@ document.getElementById('btn-buscar-servicos').addEventListener('click', functio
         })
         .catch(error => {
             console.error('Erro ao buscar serviços:', error);
-            alert('Erro ao buscar serviços. Verifique o console para mais detalhes.');
+            alert('Erro ao buscar serviços: ' + error.message);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Buscar Serviços';
         });
 });
 
-// Buscar bases operacionais
-function buscarBases(targetId = 'base_inicio_id') {
+// Função para buscar bases (reutilizável)
+function buscarBases(targetSelectId, buttonElement) {
+    const btn = buttonElement;
+    btn.disabled = true;
+    btn.textContent = 'Buscando...';
+    
     fetch('/api/bases')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            const select = document.getElementById(targetId);
+            const select = document.getElementById(targetSelectId);
             // Limpar opções atuais
             select.innerHTML = '<option value="">Selecionar base operacional...</option>';
             
-            // Adicionar bases
-            if (data.data && data.data.length > 0) {
+            // Verificar se há dados
+            if (data.data && Array.isArray(data.data) && data.data.length > 0) {
                 data.data.forEach(base => {
                     const option = document.createElement('option');
                     option.value = base.id;
-                    // Usar name em vez de nome para compatibilidade com a API
-                    option.textContent = base.name || `Base #${base.id}`;
+                    option.textContent = base.name || base.title || `Base #${base.id}`;
                     select.appendChild(option);
                 });
                 
-                // Mostrar mensagem de sucesso
                 alert(`${data.data.length} bases operacionais encontradas!`);
+            } else if (data.error) {
+                throw new Error(data.error);
             } else {
                 alert('Nenhuma base operacional encontrada.');
             }
         })
         .catch(error => {
             console.error('Erro ao buscar bases operacionais:', error);
-            alert('Erro ao buscar bases operacionais. Verifique o console para mais detalhes.');
+            alert('Erro ao buscar bases operacionais: ' + error.message);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Buscar Bases';
         });
 }
 
+// Buscar bases para início
+document.getElementById('btn-buscar-bases').addEventListener('click', function() {
+    buscarBases('base_inicio_id', this);
+});
+
+// Buscar bases para fim (quando disponível)
+document.getElementById('btn-buscar-bases-fim').addEventListener('click', function() {
+    buscarBases('base_fim_id', this);
+});
+
 // Buscar veículos
 document.getElementById('btn-buscar-veiculos').addEventListener('click', function() {
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Buscando...';
+    
     fetch('/api/veiculos')
         .then(response => response.json())
         .then(data => {
@@ -176,12 +214,10 @@ document.getElementById('btn-buscar-veiculos').addEventListener('click', functio
                 data.data.forEach(veiculo => {
                     const option = document.createElement('option');
                     option.value = veiculo.id;
-                    // Usar plate em vez de placa para compatibilidade com a API
-                    option.textContent = veiculo.plate || `Veículo #${veiculo.id}`;
+                    option.textContent = veiculo.plate || veiculo.name || `Veículo #${veiculo.id}`;
                     select.appendChild(option);
                 });
                 
-                // Mostrar mensagem de sucesso
                 alert(`${data.data.length} veículos encontrados!`);
             } else {
                 alert('Nenhum veículo encontrado.');
@@ -189,12 +225,20 @@ document.getElementById('btn-buscar-veiculos').addEventListener('click', functio
         })
         .catch(error => {
             console.error('Erro ao buscar veículos:', error);
-            alert('Erro ao buscar veículos. Verifique o console para mais detalhes.');
+            alert('Erro ao buscar veículos: ' + error.message);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Buscar Veículos';
         });
 });
 
 // Buscar agentes
 document.getElementById('btn-buscar-agentes').addEventListener('click', function() {
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Buscando...';
+    
     fetch('/api/agentes')
         .then(response => response.json())
         .then(data => {
@@ -207,12 +251,10 @@ document.getElementById('btn-buscar-agentes').addEventListener('click', function
                 data.data.forEach(agente => {
                     const option = document.createElement('option');
                     option.value = agente.id;
-                    // Usar name em vez de nome para compatibilidade com a API
                     option.textContent = agente.name || `Agente #${agente.id}`;
                     select.appendChild(option);
                 });
                 
-                // Mostrar mensagem de sucesso
                 alert(`${data.data.length} agentes encontrados!`);
             } else {
                 alert('Nenhum agente encontrado.');
@@ -220,8 +262,24 @@ document.getElementById('btn-buscar-agentes').addEventListener('click', function
         })
         .catch(error => {
             console.error('Erro ao buscar agentes:', error);
-            alert('Erro ao buscar agentes. Verifique o console para mais detalhes.');
+            alert('Erro ao buscar agentes: ' + error.message);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Buscar Agentes';
         });
+});
+
+// Controlar exibição do campo de base de fim
+document.querySelectorAll('input[name="tipo_fim"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const container = document.getElementById('base-fim-container');
+        if (this.value === 'base') {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    });
 });
 </script>
 {% endblock %}
